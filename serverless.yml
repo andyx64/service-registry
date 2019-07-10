@@ -13,6 +13,9 @@ custom:
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
+  serviceRegistry:
+    public: false
+
 
 
 provider:

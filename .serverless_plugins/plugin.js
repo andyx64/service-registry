@@ -28,6 +28,7 @@ class ServiceRegistryPlugin {
 
     const provideName = this.serverless.service.provider.name
     const serviceName = this.serverless.service.service
+    const customFlags = this.serverless.service.custom.serviceRegistry
 
     const ssmPath = this._pathBuilder('services', provideName, serviceName);
     const apiId = await this._getApiId()
@@ -37,7 +38,8 @@ class ServiceRegistryPlugin {
       Name: ssmPath, /* required */
       Type: 'String',
       Value: JSON.stringify({
-        apiId
+        ...customFlags,
+        apiId: apiId
       }),
       Description: 'A Microservice',
       Overwrite: true,
