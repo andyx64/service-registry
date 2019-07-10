@@ -30,7 +30,7 @@ class ServiceRegistryPlugin {
     const serviceName = this.serverless.service.service
 
     const ssmPath = this._pathBuilder('services', provideName, serviceName);
-    const apiId = await this.getApiId()
+    const apiId = await this._getApiId()
 
 
     var params = {
@@ -44,16 +44,17 @@ class ServiceRegistryPlugin {
     };
 
 
-
-
     const createParamater = await ssm.putParameter(params, (err, data) => {
       if (err) this.serverless.cli.log(err);            // an error occurred
-      else     this.serverless.cli.log('SSM Parameter Created!');           // successful response
+      else     this.serverless.cli.log(`SSM created with the path: "${ssmPath}"`);           // successful response
     }).promise();
 
     return createParamater;
 
   }
+
+
+
 
 
   _pathBuilder(...segments) {
@@ -71,7 +72,7 @@ class ServiceRegistryPlugin {
 
   }
 
-  getApiId() {
+  _getApiId() {
     return new Promise(resolve => {
       this.serverless.getProvider('aws').request('CloudFormation', 'describeStacks', {StackName: this.serverless.getProvider('aws').naming.getStackName(this.stage)}).then(resp => {
         const output = resp.Stacks[0].Outputs;
