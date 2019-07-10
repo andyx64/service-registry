@@ -22,46 +22,66 @@ class ServiceRegistryPlugin {
     };
   }
 
-  initSSM() {
-    this.serverless.cli.log('Creating SSM Parameter...');   
+  async initSSM() {
+    this.serverless.cli.log('Creating SSM Parameter...');
     this._setupAWS()
 
     const provideName = this.serverless.service.provider.name
     const serviceName = this.serverless.service.service
 
     const ssmPath = this._pathBuilder('services', provideName, serviceName);
+    const apiId = await this.getApiId()
 
 
     var params = {
       Name: ssmPath, /* required */
       Type: 'String',
-      Value: '1', /* required */
+      Value: JSON.stringify({
+        apiId
+      }),
       Description: 'A Microservice',
       Overwrite: true,
     };
 
 
-    const createParamater = ssm.putParameter(params, (err, data) => {
-      if (err) this.serverless.cli.log('SSM Parameter Failed!');            // an error occurred
+
+
+    const createParamater = await ssm.putParameter(params, (err, data) => {
+      if (err) this.serverless.cli.log(err);            // an error occurred
       else     this.serverless.cli.log('SSM Parameter Created!');           // successful response
     }).promise();
 
     return createParamater;
 
-    //this.serverless.cli.log(`${this.serverless.service.functions.hello.handler}`);
   }
 
 
-_pathBuilder(...segments) {
-  var path = '';
-  segments.forEach( segement => path += `/${segement}`);
-  return path;
-}
+  _pathBuilder(...segments) {
+    var path = '';
+    segments.forEach( segement => path += `/${segement}`);
+    return path;
+  }
 
-_setupAWS(){ 
-  AWS.config.update({region: this.serverless.service.provider.region}) 
-  ssm = new AWS.SSM()
-} 
+  _setupAWS(){
+    let profile = this.options['aws-profile'] || this.serverless.service.custom.settings.profile
+    var credentials = new AWS.SharedIniFileCredentials({profile: profile});
+    AWS.config.credentials = credentials;
+    AWS.config.update({region: this.serverless.service.provider.region})
+    ssm = new AWS.SSM();
+
+  }
+
+  getApiId() {
+    return new Promise(resolve => {
+      this.serverless.getProvider('aws').request('CloudFormation', 'describeStacks', {StackName: this.serverless.getProvider('aws').naming.getStackName(this.stage)}).then(resp => {
+        const output = resp.Stacks[0].Outputs;
+        let apiUrl;
+        output.filter(entry => entry.OutputKey.match('ServiceEndpoint')).forEach(entry => apiUrl = entry.OutputValue);
+        const apiId = apiUrl.match('https:\/\/(.*)\\.execute-api')[1];
+        resolve(apiId);
+      });
+    });
+  }
 
 
 }
