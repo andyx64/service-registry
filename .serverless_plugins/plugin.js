@@ -1,6 +1,6 @@
 'use strict';
 const AWS = require('aws-sdk');
-var ssm;
+
 
 
 class ServiceRegistryPlugin {
@@ -11,20 +11,20 @@ class ServiceRegistryPlugin {
     this.commands = {
       serviceRegistry: {
         lifecycleEvents: [
-          'initSSM',
+          'createSSM',
         ],
       },
     };
 
     this.hooks = {
       'after:deploy:deploy': () => this.serverless.pluginManager.run(['serviceRegistry']),
-      'serviceRegistry:initSSM': this.initSSM.bind(this),
+      'serviceRegistry:createSSM': this.createSSM.bind(this),
     };
   }
 
-  async initSSM() {
+  async createSSM() {
     this.serverless.cli.log('Creating SSM Parameter...');
-    this._setupAWS()
+    const ssm = this._initSSM()
 
     const provideName = this.serverless.service.provider.name
     const serviceName = this.serverless.service.service
@@ -59,19 +59,22 @@ class ServiceRegistryPlugin {
 
 
 
+
+  // HELPER ===========================
+
+
   _pathBuilder(...segments) {
     var path = '';
     segments.forEach( segement => path += `/${segement}`);
     return path;
   }
 
-  _setupAWS(){
+  _initSSM(){
     let profile = this.options['aws-profile'] || this.serverless.service.custom.settings.profile
     var credentials = new AWS.SharedIniFileCredentials({profile: profile});
     AWS.config.credentials = credentials;
     AWS.config.update({region: this.serverless.service.provider.region})
-    ssm = new AWS.SSM();
-
+    return new AWS.SSM();
   }
 
   _getApiId() {
