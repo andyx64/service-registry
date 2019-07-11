@@ -48,7 +48,7 @@ class ServiceRegistryPlugin {
 
     const createParamater = await ssm.putParameter(params, (err, data) => {
       if (err) this.serverless.cli.log(err);            // an error occurred
-      else     this.serverless.cli.log(`SSM created with the path: "${ssmPath}"`);           // successful response
+      else     this.serverless.cli.log(`SSM created with the path: "${ssmPath}" with the Api Id: "${apiId}"`);           // successful response
     }).promise();
 
     return createParamater;
