@@ -29,8 +29,8 @@ class ServiceRegistryPlugin {
     const provideName = this.serverless.service.provider.name
     const serviceName = this.serverless.service.service
 
-    const customValues = this.serverless.service.custom.serviceRegistry.value
-    const description = this.serverless.service.custom.serviceRegistry.description
+    const customValues = this.serverless.service.custom.serviceRegistry.value || ''
+    const description = this.serverless.service.custom.serviceRegistry.description ||''
 
     const ssmPath = this._pathBuilder('services', provideName, serviceName);
     const apiId = await this._getApiId()
@@ -88,6 +88,7 @@ class ServiceRegistryPlugin {
       this.serverless.getProvider('aws').request('CloudFormation', 'describeStacks', {StackName: this.serverless.getProvider('aws').naming.getStackName(this.stage)}).then(resp => {
         const output = resp.Stacks[0].Outputs;
         let apiUrl;
+
         output.filter(entry => entry.OutputKey.match('ServiceEndpoint')).forEach(entry => apiUrl = entry.OutputValue);
         const apiId = apiUrl.match('https:\/\/(.*)\\.execute-api')[1];
         resolve(apiId);

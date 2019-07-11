@@ -5,7 +5,6 @@ service: MicroManager
 plugins:
   - serverless-webpack
   - serverless-offline
-  - plugin
 
 # serverless-webpack configuration
 # Enable auto-packing of external modules

@@ -1,0 +1,14 @@
+{
+  "name": "serverless-service-registry",
+  "version": "0.0.7",
+  "description": "",
+  "main": "serviceRegistryPlugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.490.0"
+  }
+}
