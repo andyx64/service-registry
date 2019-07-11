@@ -9,18 +9,28 @@ class ServiceRegistryPlugin {
     this.options = options;
 
     this.commands = {
-      serviceRegistry: {
+      createServiceRegistry: {
         lifecycleEvents: [
           'createSSM',
+        ],
+      },
+      deleteServiceRegistry: {
+        lifecycleEvents: [
+          'deleteSSM',
         ],
       },
     };
 
     this.hooks = {
-      'after:deploy:deploy': () => this.serverless.pluginManager.run(['serviceRegistry']),
-      'serviceRegistry:createSSM': this.createSSM.bind(this),
+      'after:deploy:deploy': () => this.serverless.pluginManager.run(['createServiceRegistry']),
+      'createServiceRegistry:createSSM': this.createSSM.bind(this),
+
+      'after:remove:remove': () => this.serverless.pluginManager.run(['deleteServiceRegistry']),
+      'deleteServiceRegistry:deleteSSM': this.deleteSSM.bind(this),
     };
   }
+
+  // CREATE ===========================
 
   async createSSM() {
     this.serverless.cli.log('Creating SSM Parameter...');
@@ -69,9 +79,29 @@ class ServiceRegistryPlugin {
   }
 
 
+  // DELETE ===========================
 
+  async deleteSSM () {
+    this.serverless.cli.log('Deleting SSM Parameter...');
+    const ssm =  this._initSSM();
+    const providerName = this.serverless.service.provider.name
+    const serviceName = this.serverless.service.service
+    const ssmPath = this._pathBuilder('services', providerName, serviceName);
 
+    var params = {
+      Name: ssmPath
+    };
 
+    const deleteParameter = await ssm.deleteParameter(params, (err, data) => {
+      if (err) {
+        this.serverless.cli.log(err);
+      } else {
+        this.serverless.cli.log('SSM successfully deleted!');
+      }
+    }).promise()
+
+    return deleteParameter
+  }
 
   // HELPER ===========================
 

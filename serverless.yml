@@ -16,9 +16,6 @@ custom:
   serviceRegistry:
     value:
       public: false
-      region: ${self:provider.region}
-      stage:  ${self:provider.stage}
-      providerName: ${self:provider.name}
     description:
       A Nice Microservice!
 
