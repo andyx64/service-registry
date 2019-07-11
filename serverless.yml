@@ -14,7 +14,11 @@ custom:
     webpackConfig: ./webpack.config.js
     includeModules: true
   serviceRegistry:
-    public: false
+    value:
+      public: false
+    description:
+      A Nice Microservice!
+
 
 
 

@@ -28,7 +28,9 @@ class ServiceRegistryPlugin {
 
     const provideName = this.serverless.service.provider.name
     const serviceName = this.serverless.service.service
-    const customFlags = this.serverless.service.custom.serviceRegistry
+
+    const customValues = this.serverless.service.custom.serviceRegistry.value
+    const description = this.serverless.service.custom.serviceRegistry.description
 
     const ssmPath = this._pathBuilder('services', provideName, serviceName);
     const apiId = await this._getApiId()
@@ -38,17 +40,21 @@ class ServiceRegistryPlugin {
       Name: ssmPath, /* required */
       Type: 'String',
       Value: JSON.stringify({
-        ...customFlags,
+        ...customValues,
         apiId: apiId
       }),
-      Description: 'A Microservice',
+      Description:  description || '',
       Overwrite: true,
     };
 
 
     const createParamater = await ssm.putParameter(params, (err, data) => {
-      if (err) this.serverless.cli.log(err);            // an error occurred
-      else     this.serverless.cli.log(`SSM created with the path: "${ssmPath}" with the Api Id: "${apiId}"`);           // successful response
+      if (err) {
+        this.serverless.cli.log(err);
+      } else {
+        this.serverless.cli.log(`SSM created with the path: "${ssmPath}" with the Api Id: "${apiId}"`);
+        this.serverless.cli.log('Have a nice day!');
+      }// successful response
     }).promise();
 
     return createParamater;
