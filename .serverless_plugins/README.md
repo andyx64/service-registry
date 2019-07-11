@@ -52,7 +52,14 @@ After deplyoing your SMM should look something like that.
 
 ```json
 {
-"public":false,
+"public": false,
+"region":"us-east-1",
+"stage":"dev",
+"providerName":"aws",
 "apiId":"rje0402x51",
+"invokeUrl":"https://rje0402x51.execute-api.us-east-1.amazonaws.com/dev"
 }
+
 ```
+
+The public field is from your serverless.yml.

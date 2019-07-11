@@ -5,6 +5,7 @@ service: MicroManager
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serviceRegistryPlugin
 
 # serverless-webpack configuration
 # Enable auto-packing of external modules
@@ -15,6 +16,9 @@ custom:
   serviceRegistry:
     value:
       public: false
+      region: ${self:provider.region}
+      stage:  ${self:provider.stage}
+      providerName: ${self:provider.name}
     description:
       A Nice Microservice!
 

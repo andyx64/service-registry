@@ -26,13 +26,17 @@ class ServiceRegistryPlugin {
     this.serverless.cli.log('Creating SSM Parameter...');
     const ssm = this._initSSM()
 
-    const provideName = this.serverless.service.provider.name
+    const providerName = this.serverless.service.provider.name
+    const region = this.serverless.service.provider.region
+    const stage = this.serverless.service.provider.stage
+
+
     const serviceName = this.serverless.service.service
 
     const customValues = this.serverless.service.custom.serviceRegistry.value || ''
     const description = this.serverless.service.custom.serviceRegistry.description ||''
 
-    const ssmPath = this._pathBuilder('services', provideName, serviceName);
+    const ssmPath = this._pathBuilder('services', providerName, serviceName);
     const apiId = await this._getApiId()
 
 
@@ -41,7 +45,10 @@ class ServiceRegistryPlugin {
       Type: 'String',
       Value: JSON.stringify({
         ...customValues,
-        apiId: apiId
+        apiId: apiId,
+        region,
+        stage,
+        invokeUrl: this._invokeUrlBuilder(apiId, region, stage)
       }),
       Description:  description || '',
       Overwrite: true,
@@ -94,6 +101,10 @@ class ServiceRegistryPlugin {
         resolve(apiId);
       });
     });
+  }
+
+  _invokeUrlBuilder(apiId, region, stage) {
+    return `https://${apiId}.execute-api.${region}.amazonaws.com/${stage}`
   }
 
 
