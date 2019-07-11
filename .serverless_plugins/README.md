@@ -5,6 +5,7 @@ Serverless plugin for automatically adding ssm variables when deploying.
 ## Features
 + Adds API Gateway id to SMM values      
 + Custom SMM values from serverless.yml
++ Delete SMM on remove
 
 ## How to use
    
@@ -43,6 +44,12 @@ All properties under value will be added to the value field of SMM.
 
 The description property is your SMM description.
 
+Now just deploy via
+
+```
+sls deploy --aws-profile yourPrfoile
+```
+
 Done!
 
 #### After deploy
@@ -63,3 +70,13 @@ After deplyoing your SMM should look something like that.
 ```
 
 The public field is from your serverless.yml.
+
+#### Deleting
+
+If you removing your serverless project via
+
+```
+sls remove --aws-profile yourPrfoile
+```
+
+the SSM Parameter gets also removed. 
