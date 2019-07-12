@@ -37,8 +37,8 @@ class ServiceRegistryPlugin {
     const ssm = this._initSSM()
 
     const providerName = this.serverless.service.provider.name
-    const region = this.serverless.service.provider.region
-    const stage = this.serverless.service.provider.stage
+    const region = this.options.region || this.serverless.service.provider.region
+    const stage = this.options.stage || this.serverless.service.provider.stage
 
 
     const serviceName = this.serverless.service.service
