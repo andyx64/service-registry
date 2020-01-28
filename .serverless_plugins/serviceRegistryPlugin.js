@@ -5,9 +5,14 @@ const AWS = require('aws-sdk');
 
 class ServiceRegistryPlugin {
 
-   
-
-
+  ssm;
+  providerName;
+  region;
+  stage;
+  serviceName;
+  customValues;
+  description;
+  ssmPath;
 
 
   constructor(serverless, options) {
@@ -15,13 +20,13 @@ class ServiceRegistryPlugin {
     this.options = options;
     this.ssm = this._initSSM()
 
-    this.providerName = this.serverless.service.provider.name
+    this.providerName = this.serverless.service.provider.name || 'aws'
     this.region = this.options.region || this.serverless.service.custom.serviceRegistry.region || this.serverless.service.provider.region
     this.stage = this.options.stage || this.serverless.service.custom.serviceRegistry.stage || this.serverless.service.provider.stage
     this.serviceName = this.options.serviceName || this.serverless.service.custom.serviceRegistry.serviceName || this.serverless.service.service
     this.customValues = this.serverless.service.custom.serviceRegistry.value || ''
     this.description = this.serverless.service.custom.serviceRegistry.description ||''
-    this.ssmPath = this._pathBuilder('services', providerName, serviceName);
+    this.ssmPath = this._pathBuilder('services', this.providerName, this.serviceName);
 
     this.commands = {
       createServiceRegistry: {
@@ -38,10 +43,10 @@ class ServiceRegistryPlugin {
 
     this.hooks = {
       'after:deploy:deploy': () => this.serverless.pluginManager.run(['createServiceRegistry']),
-      'createServiceRegistry:createSSM': this.createSSM.bind(this),
+      'createServiceRegistry:createSSM': this.createSSM,
 
       'after:remove:remove': () => this.serverless.pluginManager.run(['deleteServiceRegistry']),
-      'deleteServiceRegistry:deleteSSM': this.deleteSSM.bind(this),
+      'deleteServiceRegistry:deleteSSM': this.deleteSSM,
     };
   }
 
