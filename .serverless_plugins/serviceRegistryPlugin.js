@@ -5,7 +5,7 @@ const AWS = require('aws-sdk');
 
 class ServiceRegistryPlugin {
 
-   ssm = this._initSSM()
+   
 
    providerName = this.serverless.service.provider.name
    region = this.options.region || this.serverless.service.custom.serviceRegistry.region || this.serverless.service.provider.region
@@ -17,6 +17,7 @@ class ServiceRegistryPlugin {
 
 
   constructor(serverless, options) {
+    this.ssm = this._initSSM()
     this.serverless = serverless;
     this.options = options;
 
@@ -57,7 +58,7 @@ class ServiceRegistryPlugin {
         ...customValues,
         apiId: this.apiId,
         region: this.region,
-        stage: this.region,
+        stage: this.stage,
         invokeUrl: this._invokeUrlBuilder(this.apiId, this.region, this.stage)
       }),
       Description:  this.description || '',
