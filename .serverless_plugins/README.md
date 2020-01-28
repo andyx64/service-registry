@@ -34,6 +34,7 @@ In your serverless.yml you can add following properties:
 ```yaml
 custom:
   serviceRegistry:
+    serviceName: products-dev
     value:
       public: false
     description:
