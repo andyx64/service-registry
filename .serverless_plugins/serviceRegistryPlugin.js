@@ -4,6 +4,18 @@ const AWS = require('aws-sdk');
 
 
 class ServiceRegistryPlugin {
+
+   ssm = this._initSSM()
+
+   providerName = this.serverless.service.provider.name
+   region = this.serverless.service.provider.region
+   stage = this.serverless.service.provider.stage
+   serviceName = this.serverless.service.service
+   customValues = this.serverless.service.custom.serviceRegistry.value || ''
+   description = this.serverless.service.custom.serviceRegistry.description ||''
+   ssmPath = this._pathBuilder('services', providerName, serviceName);
+
+
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
@@ -33,25 +45,12 @@ class ServiceRegistryPlugin {
   // CREATE ===========================
 
   async createSSM() {
-    this.serverless.cli.log('Creating SSM Parameter...');
-    const ssm = this._initSSM()
 
-    const providerName = this.serverless.service.provider.name
-    const region = this.serverless.service.provider.region
-    const stage = this.serverless.service.provider.stage
-
-
-    const serviceName = this.serverless.service.service
-
-    const customValues = this.serverless.service.custom.serviceRegistry.value || ''
-    const description = this.serverless.service.custom.serviceRegistry.description ||''
-
-    const ssmPath = this._pathBuilder('services', providerName, serviceName);
-    const apiId = await this._getApiId()
+    apiId = await this._getApiId()
 
 
     var params = {
-      Name: ssmPath, /* required */
+      Name: this.ssmPath, /* required */
       Type: 'String',
       Value: JSON.stringify({
         ...customValues,
