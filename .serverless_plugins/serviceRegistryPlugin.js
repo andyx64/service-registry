@@ -7,19 +7,21 @@ class ServiceRegistryPlugin {
 
    
 
-   providerName = this.serverless.service.provider.name
-   region = this.options.region || this.serverless.service.custom.serviceRegistry.region || this.serverless.service.provider.region
-   stage = this.options.stage || this.serverless.service.custom.serviceRegistry.stage || this.serverless.service.provider.stage
-   serviceName = this.options.serviceName || this.serverless.service.custom.serviceRegistry.serviceName || this.serverless.service.service
-   customValues = this.serverless.service.custom.serviceRegistry.value || ''
-   description = this.serverless.service.custom.serviceRegistry.description ||''
-   ssmPath = this._pathBuilder('services', providerName, serviceName);
+
 
 
   constructor(serverless, options) {
-    this.ssm = this._initSSM()
     this.serverless = serverless;
     this.options = options;
+    this.ssm = this._initSSM()
+
+    this.providerName = this.serverless.service.provider.name
+    this.region = this.options.region || this.serverless.service.custom.serviceRegistry.region || this.serverless.service.provider.region
+    this.stage = this.options.stage || this.serverless.service.custom.serviceRegistry.stage || this.serverless.service.provider.stage
+    this.serviceName = this.options.serviceName || this.serverless.service.custom.serviceRegistry.serviceName || this.serverless.service.service
+    this.customValues = this.serverless.service.custom.serviceRegistry.value || ''
+    this.description = this.serverless.service.custom.serviceRegistry.description ||''
+    this.ssmPath = this._pathBuilder('services', providerName, serviceName);
 
     this.commands = {
       createServiceRegistry: {
