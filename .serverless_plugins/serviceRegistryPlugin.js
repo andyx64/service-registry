@@ -8,9 +8,9 @@ class ServiceRegistryPlugin {
    ssm = this._initSSM()
 
    providerName = this.serverless.service.provider.name
-   region = this.serverless.service.provider.region
-   stage = this.serverless.service.provider.stage
-   serviceName = this.serverless.service.service
+   region = this.options.region || this.serverless.service.custom.serviceRegistry.region || this.serverless.service.provider.region
+   stage = this.options.stage || this.serverless.service.custom.serviceRegistry.stage || this.serverless.service.provider.stage
+   serviceName = this.options.serviceName || this.serverless.service.custom.serviceRegistry.serviceName || this.serverless.service.service
    customValues = this.serverless.service.custom.serviceRegistry.value || ''
    description = this.serverless.service.custom.serviceRegistry.description ||''
    ssmPath = this._pathBuilder('services', providerName, serviceName);
@@ -45,7 +45,8 @@ class ServiceRegistryPlugin {
   // CREATE ===========================
 
   async createSSM() {
-
+    this.serverless.cli.log('Creating SSM Parameter...');
+    
     apiId = await this._getApiId()
 
 
@@ -54,21 +55,21 @@ class ServiceRegistryPlugin {
       Type: 'String',
       Value: JSON.stringify({
         ...customValues,
-        apiId: apiId,
-        region,
-        stage,
-        invokeUrl: this._invokeUrlBuilder(apiId, region, stage)
+        apiId: this.apiId,
+        region: this.region,
+        stage: this.region,
+        invokeUrl: this._invokeUrlBuilder(this.apiId, this.region, this.stage)
       }),
-      Description:  description || '',
+      Description:  this.description || '',
       Overwrite: true,
     };
 
 
-    const createParamater = await ssm.putParameter(params, (err, data) => {
+    const createParamater = await this.ssm.putParameter(params, (err, data) => {
       if (err) {
         this.serverless.cli.log(err);
       } else {
-        this.serverless.cli.log(`SSM created with the path: "${ssmPath}" with the Api Id: "${apiId}"`);
+        this.serverless.cli.log(`SSM created with the path: "${this.ssmPath}" with the Api Id: "${this.apiId}"`);
         this.serverless.cli.log('Have a nice day!');
       }// successful response
     }).promise();
@@ -82,16 +83,12 @@ class ServiceRegistryPlugin {
 
   async deleteSSM () {
     this.serverless.cli.log('Deleting SSM Parameter...');
-    const ssm =  this._initSSM();
-    const providerName = this.serverless.service.provider.name
-    const serviceName = this.serverless.service.service
-    const ssmPath = this._pathBuilder('services', providerName, serviceName);
 
     var params = {
-      Name: ssmPath
+      Name: this.ssmPath
     };
 
-    const deleteParameter = await ssm.deleteParameter(params, (err, data) => {
+    const deleteParameter = await this.ssm.deleteParameter(params, (err, data) => {
       if (err) {
         this.serverless.cli.log(err);
       } else {
