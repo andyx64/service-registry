@@ -55,7 +55,7 @@ class ServiceRegistryPlugin {
   async createSSM() {
     this.serverless.cli.log('Creating SSM Parameter...');
 
-    apiId = await this._getApiId()
+    const apiId = await this._getApiId()
 
 
     var params = {
