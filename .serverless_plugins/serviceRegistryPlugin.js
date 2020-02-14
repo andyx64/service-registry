@@ -43,10 +43,10 @@ class ServiceRegistryPlugin {
 
     this.hooks = {
       'after:deploy:deploy': () => this.serverless.pluginManager.run(['createServiceRegistry']),
-      'createServiceRegistry:createSSM': this.createSSM,
+      'createServiceRegistry:createSSM': this.createSSM.bind(this),
 
       'after:remove:remove': () => this.serverless.pluginManager.run(['deleteServiceRegistry']),
-      'deleteServiceRegistry:deleteSSM': this.deleteSSM,
+      'deleteServiceRegistry:deleteSSM': this.deleteSSM.bind(this),
     };
   }
 
@@ -54,7 +54,7 @@ class ServiceRegistryPlugin {
 
   async createSSM() {
     this.serverless.cli.log('Creating SSM Parameter...');
-    
+
     apiId = await this._getApiId()
 
 
